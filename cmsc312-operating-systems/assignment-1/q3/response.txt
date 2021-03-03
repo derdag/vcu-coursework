@@ -1,0 +1,17 @@
+a) Discuss and evaluate what happens when you're running both in separate windows and you kill one or the other.
+
+  Kirk writes messages to the queue and spock recieves. If both are ran in seperate windows, and if kirk is killed,
+  spock can continue to run since it is the reciever. Spock will continue to listen for messages. If when spock is
+  killed, kirk may continue to run and publish messages, spock will print the messages when it is run again.
+
+b) Discuss what happens (and why) when you run two copies of kirk.
+
+  If two copies of kirk are run, there will seem to be no affect from spocks perspective. Both instances of kirk
+  are able to write messages to spock, spock will display messages sent from both instances of kirk with no trouble.
+  This is because the key used is consistent across all files, which is the filename kirk.c.
+
+c) Discuss what happens (and why) when your run two copies of spock.
+
+  If two copies of spock are run, we cannot garuntee whick spock will print the message that is written by kirk.
+  One of the running instances of spock will print the message written from kirk. This is because both instances of
+  spock are attempting to read from the same location at the same time. Only one instance will successfully complete.

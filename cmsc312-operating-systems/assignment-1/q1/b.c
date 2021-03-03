@@ -1,55 +1,56 @@
 #include <sys/types.h>
+#include <sys/ipc.h>
 #include <sys/shm.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
-#include <unistd.h>
-
-// integers are 4 bytes, char 1 byte
-#define INTSHMSZ 1    // maybe this should be more than one, its just supposed to hold 1 int
-#define STRINGSHMSZ 6 //double check this length too
-
-// process B
+#define INTSHMSZ 1
+#define STRINGSHMSZ 6
 
 int main()
 {
+        int intshmid, stringshmid;
+        key_t intkey, stringkey;
+        char *stringshm, *intshm, *s, *i;
 
-    int intshmid, stringshmid;
-    key_t intkey, stringkey;
-    char *stringshm, *s; //idk what the second parameter is?? or first?
-    int *intshm, *i;     //maybe make this a string too for the int shared memory
+        intkey = 3412;
+        stringkey = 3422;
 
-    // create key for memory segments
-    intkey = 3456;
-    stringkey = 4567;
+        if ((intshmid = shmget(intkey, INTSHMSZ, IPC_CREAT | 0666)) < 0)
+        {
+                perror("shmget");
+                exit(1);
+        }
 
-    // here we create/locate the segment
-    // can consider wrapping these statement in an if () < 0, to check if error with shmget, then exit(1)
-    intshmid = shmget(intkey, INTSHMSZ, IPC_CREAT | 0666);
-    stringshmid = shmget(stringkey, STRINGSHMSZ, IPC_CREAT | 0666);
+        if ((stringshmid = shmget(stringkey, STRINGSHMSZ, IPC_CREAT | 0666)) < 0)
+        {
+                perror("shmget");
+                exit(1);
+        }
 
-    // attach segment to dataspace
-    intshm = shmat(intshmid, NULL, 0);
-    stringshm = shmat(stringshmid, NULL, 0);
+        if ((intshm = shmat(intshmid, NULL, 0)) == (char *)-1)
+        {
+                perror("shmat");
+                exit(1);
+        }
+        if ((stringshm = shmat(stringshmid, NULL, 0)) == (char *)-1)
+        {
+                perror("shmat");
+                exit(1);
+        }
 
-    i = intshm; // idk what this does tbh
+        i = intshm;
 
-    // process B waits to see '1' in integer shared memory.
-    while (*intshm != '1')
-        sleep(1);
+        while (*intshm != '1')
+                sleep(1);
 
-    // writes string "shared" to string shared memory
-    s = stringshm;
+        s = stringshm;
 
-    strcpy(s, "shared");
+        strcpy(s, "shared");
 
-    // wait for a to print string
-    while (*intshm != '*')
-        sleep(1);
+        *i = '2';
 
-    // process B writes '2' in integer shared memory, signalling it is complete
-
-    *i = '2';
-
-    return 0;
+        return 0;
 }

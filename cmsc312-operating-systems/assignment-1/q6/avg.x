@@ -6,10 +6,10 @@
  * http://www.linuxjournal.com/article/2204?page=0,1
  */
 
-const MAXAVGSIZE = 100;
+const MAXAVGSIZE = 200;
 
 struct input_data {
-	double input_data<100>;
+	double input_data<200>;
 };
 
 
@@ -17,6 +17,6 @@ typedef struct input_data input_data;
 
 program AVERAGEPROG {
 	version AVERAGEVERS {
-		double AVERAGE(input_data) = 1;
+		input_data AVERAGE(input_data) = 1;
 	} = 1;
 } = 28856;
